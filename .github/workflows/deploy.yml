@@ -2,7 +2,9 @@ name: .NET Core Continuous Deployment
 on:
   push:
     branches:
-      - main  # Fires automatically whenever you push code changes to the main branch
+      - main  # Triggers when Team Lead merges code into main
+      - QA    # Triggers when Developers push code to QA
+
 jobs:
   deploy:
     runs-on: self-hosted  # Directs the job straight to your active vm4runner agent
@@ -13,15 +15,41 @@ jobs:
       run: |
         dotnet restore
         dotnet publish -c Release -o ./publish
-    
-    - name: Copy appsettings to publish folder  
+
+
+    # ==========================================
+    # ENVIRONMENT 1: DEPLOY TO QA (mytestapp3.com)
+    # ==========================================
+    - name: Copy Files to QA Production
+      if: github.ref == 'refs/heads/QA'
+      - name: Copy appsettings to publish folder  
       run: |
         cp ./appsettings.json ./publish/appsettings.json
     
-    - name: Copy Files to Production
+      run: |
+        sudo cp -r ./publish/* /var/www/app3/
+
+    - name: Reload QA Application Service
+      if: github.ref == 'refs/heads/QA'
+      run: |
+        sudo systemctl restart app3.service
+
+    # ==========================================
+    # ENVIRONMENT 2: DEPLOY TO LIVE (mytestapp4.com)
+    # ==========================================
+    - name: Copy Files to Live Production
+      if: github.ref == 'refs/heads/main'
+
+      - name: Copy appsettings to publish folder  
+      run: |
+        cp ./appsettings.json ./publish/appsettings.json
+    
       run: |
         sudo cp -r ./publish/* /var/www/app4/
-    
-    - name: Reload Application Service
+
+    - name: Reload Live Application Service
+      if: github.ref == 'refs/heads/main'
       run: |
         sudo systemctl restart app4.service
+
+   
