@@ -4,24 +4,25 @@ on:
     branches:
       - main  # Triggers when Team Lead merges code into main
       - QA    # Triggers when Developers push code to QA
-
 jobs:
   deploy:
     runs-on: self-hosted  # Directs the job straight to your active vm4runner agent
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
+
     - name: Build and Publish App
       run: |
         dotnet restore
         dotnet publish -c Release -o ./publish
 
-    - name: Copy Files to QA Production
+    - name: Copy appsettings to QA publish folder
       if: github.ref == 'refs/heads/QA'
-      - name: Copy appsettings to publish folder  
       run: |
         cp ./appsettings.json ./publish/appsettings.json
-    
+
+    - name: Copy Files to QA Production
+      if: github.ref == 'refs/heads/QA'
       run: |
         sudo cp -r ./publish/* /var/www/app3/
 
@@ -30,13 +31,13 @@ jobs:
       run: |
         sudo systemctl restart app3.service
 
-    - name: Copy Files to Live Production
+    - name: Copy appsettings to Live publish folder
       if: github.ref == 'refs/heads/main'
-
-      - name: Copy appsettings to publish folder  
       run: |
         cp ./appsettings.json ./publish/appsettings.json
-    
+
+    - name: Copy Files to Live Production
+      if: github.ref == 'refs/heads/main'
       run: |
         sudo cp -r ./publish/* /var/www/app4/
 
@@ -44,5 +45,3 @@ jobs:
       if: github.ref == 'refs/heads/main'
       run: |
         sudo systemctl restart app4.service
-
-   
