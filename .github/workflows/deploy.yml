@@ -16,10 +16,6 @@ jobs:
         dotnet restore
         dotnet publish -c Release -o ./publish
 
-
-    # ==========================================
-    # ENVIRONMENT 1: DEPLOY TO QA (mytestapp3.com)
-    # ==========================================
     - name: Copy Files to QA Production
       if: github.ref == 'refs/heads/QA'
       - name: Copy appsettings to publish folder  
@@ -34,9 +30,6 @@ jobs:
       run: |
         sudo systemctl restart app3.service
 
-    # ==========================================
-    # ENVIRONMENT 2: DEPLOY TO LIVE (mytestapp4.com)
-    # ==========================================
     - name: Copy Files to Live Production
       if: github.ref == 'refs/heads/main'
 
