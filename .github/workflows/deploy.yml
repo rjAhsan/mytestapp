@@ -15,7 +15,7 @@ jobs:
 
     # Fix 1: Explicitly navigate into the active CrudApp project directory before publishing
     # This prevents creating redundant nested folder duplicates
-    .name: Build and Publish App
+    - name: Build and Publish App
       run: |
         cd CrudApp
         dotnet restore
