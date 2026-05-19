@@ -13,9 +13,15 @@ jobs:
       run: |
         dotnet restore
         dotnet publish -c Release -o ./publish
+    
+    - name: Copy appsettings to publish folder  
+      run: |
+        cp ./appsettings.json ./publish/appsettings.json
+    
     - name: Copy Files to Production
       run: |
         sudo cp -r ./publish/* /var/www/app4/
+    
     - name: Reload Application Service
       run: |
         sudo systemctl restart app4.service
