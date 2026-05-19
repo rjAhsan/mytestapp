@@ -3,7 +3,7 @@ on:
   push:
     branches:
       - main  # Triggers when Team Lead merges code into main
-      - QA    # Triggers when Developers push code to QA
+      - qa    # Triggers when Developers push code to QA
 jobs:
   deploy:
     runs-on: self-hosted  # Directs the job straight to your active vm4runner agent
