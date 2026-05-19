@@ -3,29 +3,29 @@ name: .NET Core Continuous Deployment
 on:
   push:
     branches:
-      - main  # Runs the pipeline every time you push code to main
+      - main
 
 jobs:
   deploy:
-    runs-on: self-hosted  # Targets your active 'vm4runner' on your Azure VM
+    runs-on: self-hosted
 
     steps:
-    # 1. Pull the fresh code down into your runner's workspace directory
     - name: Checkout Code
       uses: actions/checkout@v4
 
-    # 2. Compile and optimize the C# binaries right inside your server
-    - name: Build and Publish App
+    # Fix 1: Explicitly navigate into the active CrudApp project directory before publishing
+    # This prevents creating redundant nested folder duplicates
+    .name: Build and Publish App
       run: |
+        cd CrudApp
         dotnet restore
         dotnet publish -c Release -o ./publish
 
-    # 3. Clean and deploy to your application folder
+    # Fix 2: Copy the exact contents from inside the correct publish directory directly into your production root
     - name: Copy Files to Production
       run: |
-        sudo cp -r ./publish/* /var/www/app4/
+        sudo cp -r ./CrudApp/publish/* /var/www/app4/
 
-    # 4. Restart the systemd service to apply the updates
     - name: Reload Application Service
       run: |
         sudo systemctl restart app4.service
