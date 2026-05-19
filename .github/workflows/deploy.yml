@@ -1,31 +1,21 @@
 name: .NET Core Continuous Deployment
-
 on:
   push:
     branches:
-      - main
-
+      - main  # Fires automatically whenever you push code changes to the main branch
 jobs:
   deploy:
-    runs-on: self-hosted
-
+    runs-on: self-hosted  # Directs the job straight to your active vm4runner agent
     steps:
     - name: Checkout Code
       uses: actions/checkout@v4
-
-    # Fix 1: Explicitly navigate into the active CrudApp project directory before publishing
-    # This prevents creating redundant nested folder duplicates
     - name: Build and Publish App
       run: |
-        cd CrudApp
         dotnet restore
         dotnet publish -c Release -o ./publish
-
-    # Fix 2: Copy the exact contents from inside the correct publish directory directly into your production root
     - name: Copy Files to Production
       run: |
-        sudo cp -r ./CrudApp/publish/* /var/www/app4/
-
+        sudo cp -r ./publish/* /var/www/app4/
     - name: Reload Application Service
       run: |
         sudo systemctl restart app4.service
